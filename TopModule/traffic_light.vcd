@@ -1,0 +1,516 @@
+$date
+	Mon Aug 11 14:37:45 2025
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module traffic_light_top_tb $end
+$var wire 5 ! counter_display [4:0] $end
+$var wire 1 " Yellow $end
+$var wire 1 # Red $end
+$var wire 1 $ Green $end
+$var parameter 32 % CLK_PERIOD $end
+$var parameter 32 & WIDTH $end
+$var reg 1 ' clk $end
+$var reg 1 ( en $end
+$var reg 1 ) rst_n $end
+$scope module dut $end
+$var wire 1 # Red $end
+$var wire 1 ' clk $end
+$var wire 1 ( en $end
+$var wire 1 ) rst_n $end
+$var wire 5 * time_light [4:0] $end
+$var wire 2 + state [1:0] $end
+$var wire 1 , last_light $end
+$var wire 5 - counter_display [4:0] $end
+$var wire 1 " Yellow $end
+$var wire 1 $ Green $end
+$var parameter 32 . WIDTH $end
+$scope module counter_inst $end
+$var wire 1 ' clk $end
+$var wire 1 ( en $end
+$var wire 1 ) rst_n $end
+$var wire 5 / time_light [4:0] $end
+$var wire 1 0 eq_zero $end
+$var wire 1 1 eq_one $end
+$var wire 5 2 counter_dec [4:0] $end
+$var parameter 32 3 WIDTH $end
+$var reg 5 4 counter [4:0] $end
+$var reg 5 5 counter_out [4:0] $end
+$var reg 1 , last_light $end
+$upscope $end
+$scope module fsm_inst $end
+$var wire 1 ' clk $end
+$var wire 1 ( en $end
+$var wire 1 , last_light $end
+$var wire 1 ) rst_n $end
+$var parameter 2 6 GREEN $end
+$var parameter 2 7 IDLE $end
+$var parameter 2 8 RED $end
+$var parameter 5 9 TIME_GREEN $end
+$var parameter 5 : TIME_RED $end
+$var parameter 5 ; TIME_YELLOW $end
+$var parameter 32 < WIDTH $end
+$var parameter 2 = YELLOW $end
+$var reg 2 > next_state [1:0] $end
+$var reg 5 ? next_time [4:0] $end
+$var reg 2 @ state [1:0] $end
+$var reg 5 A time_light [4:0] $end
+$upscope $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+b11 =
+b101 <
+b11 ;
+b10010 :
+b1111 9
+b1 8
+b0 7
+b10 6
+b101 3
+b101 .
+b101 &
+b1010 %
+$end
+#0
+$dumpvars
+b10010 A
+b0 @
+b10010 ?
+b0 >
+b0 5
+b0 4
+b11111 2
+01
+10
+b10010 /
+b0 -
+1,
+b0 +
+b10010 *
+0)
+0(
+0'
+0$
+1#
+0"
+b0 !
+$end
+#5000
+1'
+#10000
+0'
+#15000
+1'
+#20000
+b1 >
+0'
+1(
+1)
+#25000
+0,
+b10010 !
+b10010 -
+b10010 5
+00
+b10001 2
+b10010 4
+b1 +
+b1 @
+1'
+#30000
+0'
+#35000
+b10001 !
+b10001 -
+b10001 5
+b10000 2
+b10001 4
+1'
+#40000
+0'
+#45000
+b10000 !
+b10000 -
+b10000 5
+b1111 2
+b10000 4
+1'
+#50000
+0'
+#55000
+b1111 !
+b1111 -
+b1111 5
+b1110 2
+b1111 4
+1'
+#60000
+0'
+#65000
+b1110 !
+b1110 -
+b1110 5
+b1101 2
+b1110 4
+1'
+#70000
+0'
+#75000
+b1101 !
+b1101 -
+b1101 5
+b1100 2
+b1101 4
+1'
+#80000
+0'
+#85000
+b1100 !
+b1100 -
+b1100 5
+b1011 2
+b1100 4
+1'
+#90000
+0'
+#95000
+b1011 !
+b1011 -
+b1011 5
+b1010 2
+b1011 4
+1'
+#100000
+0'
+#105000
+b1010 !
+b1010 -
+b1010 5
+b1001 2
+b1010 4
+1'
+#110000
+0'
+#115000
+b1001 !
+b1001 -
+b1001 5
+b1000 2
+b1001 4
+1'
+#120000
+0'
+#125000
+b1000 !
+b1000 -
+b1000 5
+b111 2
+b1000 4
+1'
+#130000
+0'
+#135000
+b111 !
+b111 -
+b111 5
+b110 2
+b111 4
+1'
+#140000
+0'
+#145000
+b110 !
+b110 -
+b110 5
+b101 2
+b110 4
+1'
+#150000
+0'
+#155000
+b101 !
+b101 -
+b101 5
+b100 2
+b101 4
+1'
+#160000
+0'
+#165000
+b100 !
+b100 -
+b100 5
+b11 2
+b100 4
+1'
+#170000
+0'
+#175000
+b11 !
+b11 -
+b11 5
+b10 2
+b11 4
+1'
+#180000
+0'
+#185000
+b10 !
+b10 -
+b10 5
+b1 2
+b10 4
+1'
+#190000
+0'
+#195000
+b1 !
+b1 -
+b1 5
+11
+b0 2
+b1 4
+1'
+#200000
+0'
+#205000
+b1111 ?
+b10 >
+1,
+b0 !
+b0 -
+b0 5
+10
+01
+b11111 2
+b0 4
+1'
+#210000
+0'
+#215000
+0#
+b1111 *
+b1111 /
+b1111 A
+1$
+b10 +
+b10 @
+0,
+b10010 !
+b10010 -
+b10010 5
+00
+b10001 2
+b10010 4
+1'
+#220000
+0'
+#225000
+b10001 !
+b10001 -
+b10001 5
+b10000 2
+b10001 4
+1'
+#230000
+0'
+#235000
+b10000 !
+b10000 -
+b10000 5
+b1111 2
+b10000 4
+1'
+#240000
+0'
+#245000
+b1111 !
+b1111 -
+b1111 5
+b1110 2
+b1111 4
+1'
+#250000
+0'
+#255000
+b1110 !
+b1110 -
+b1110 5
+b1101 2
+b1110 4
+1'
+#260000
+0'
+#265000
+b1101 !
+b1101 -
+b1101 5
+b1100 2
+b1101 4
+1'
+#270000
+0'
+#275000
+b1100 !
+b1100 -
+b1100 5
+b1011 2
+b1100 4
+1'
+#280000
+0'
+#285000
+b1011 !
+b1011 -
+b1011 5
+b1010 2
+b1011 4
+1'
+#290000
+0'
+#295000
+b1010 !
+b1010 -
+b1010 5
+b1001 2
+b1010 4
+1'
+#300000
+0'
+#305000
+b1001 !
+b1001 -
+b1001 5
+b1000 2
+b1001 4
+1'
+#310000
+0'
+#315000
+b1000 !
+b1000 -
+b1000 5
+b111 2
+b1000 4
+1'
+#320000
+0'
+#325000
+b111 !
+b111 -
+b111 5
+b110 2
+b111 4
+1'
+#330000
+0'
+#335000
+b110 !
+b110 -
+b110 5
+b101 2
+b110 4
+1'
+#340000
+0'
+#345000
+b101 !
+b101 -
+b101 5
+b100 2
+b101 4
+1'
+#350000
+0'
+#355000
+b100 !
+b100 -
+b100 5
+b11 2
+b100 4
+1'
+#360000
+0'
+#365000
+b11 !
+b11 -
+b11 5
+b10 2
+b11 4
+1'
+#370000
+0'
+#375000
+b10 !
+b10 -
+b10 5
+b1 2
+b10 4
+1'
+#380000
+0'
+#385000
+b1 !
+b1 -
+b1 5
+11
+b0 2
+b1 4
+1'
+#390000
+0'
+#395000
+b11 ?
+b11 >
+1,
+b0 !
+b0 -
+b0 5
+10
+01
+b11111 2
+b0 4
+1'
+#400000
+0'
+#405000
+0,
+b1111 !
+b1111 -
+b1111 5
+00
+b1110 2
+b1111 4
+b11 *
+b11 /
+b11 A
+1"
+0$
+b11 +
+b11 @
+1'
+#410000
+0'
+#415000
+b1110 !
+b1110 -
+b1110 5
+b1101 2
+b1110 4
+1'
+#420000
+0'
+#425000
+b1101 !
+b1101 -
+b1101 5
+b1100 2
+b1101 4
+1'
