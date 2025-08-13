@@ -21,28 +21,32 @@ module counter #(
     wire [pCNT_WIDTH-1:0] next_count;
     wire [pCNT_WIDTH-1:0] dec_value;
 
-    assign dec_value = count + 5'b11111;
+    // Check if count is zero
+    wire count_is_zero = (count == {pCNT_WIDTH{1'b0}});
 
+    // Decrement only if count is not zero
+    assign dec_value = count_is_zero ? count : count + 5'b11111;
+
+    // Next count logic
     assign next_count = !rst_n              ? pGREEN_INIT_VAL :
-                        init[pGREEN_IDX]    ? pGREEN_INIT_VAL   :
-                        init[pYELLOW_IDX]   ? pYELLOW_INIT_VAL  :
-                        init[pRED_IDX]      ? pRED_INIT_VAL     : 
-                        en                  ? dec_value         : 1;
+                       init[pGREEN_IDX]     ? pGREEN_INIT_VAL :
+                       init[pYELLOW_IDX]    ? pYELLOW_INIT_VAL :
+                       init[pRED_IDX]       ? pRED_INIT_VAL : 
+                       en                   ? dec_value : count;
 
-
-    // thanh ghi
+    // Counter register
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            count <= 0;
+            count <= pGREEN_INIT_VAL;  // Reset to GREEN value
         end else if (en) begin 
             count <= next_count;
         end else begin
-            count <= 0; // giữ nguyên giá trị
+            count <= count;  // Hold value when not enabled
         end
     end
 
-    // comparator
-    assign last = (count == 4'b0) ? 1'b1 : 1'b0;
+    // Output logic
+    assign last = count_is_zero;
     assign count_out = count;
 
 endmodule
