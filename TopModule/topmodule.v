@@ -51,108 +51,117 @@ module counter #(
 
 endmodule
 // điều khiển trạng thái
+// FSM điều khiển đèn giao thông - viết gọn với toán tử 3 ngôi
 module traffic_fsm #(
     parameter LIGHT_STATE_WIDTH = 3
 )(
-    input wire clk,
-    input wire en,
-    input wire rst_n,
-    input wire last_cnt,
-    output wire [LIGHT_STATE_WIDTH-1:0] light,
-    output wire [LIGHT_STATE_WIDTH-1:0] light_cnt_init
+    input  wire clk,
+    input  wire en,
+    input  wire rst_n,
+    input  wire last_cnt,
+    output reg  [LIGHT_STATE_WIDTH-1:0] light,
+    output reg  [LIGHT_STATE_WIDTH-1:0] light_cnt_init
 );
-    
-//. Định nghĩa các tham số đèn
-    parameter pGREEN_IDX = 0;
-    parameter pYELLOW_IDX = 1;
-    parameter pRED_IDX = 2;
-    
-    // Trạng thái của đèn
-    parameter [1:0] IDLE = 2'b00;
-    parameter [1:0] GREEN = 2'b01;
-    parameter [1:0] YELLOW = 2'b10;
-    parameter [1:0] RED = 2'b11;
-    
-   
-    reg [1:0] light_current_state, light_next_state;
-    reg [LIGHT_STATE_WIDTH-1:0] signal_light;
-    reg [LIGHT_STATE_WIDTH-1:0] signal_light_cnt_init;
-    
-    
-    // Trạng thái khi reset, en, và kích hoạt
+
+    // Định nghĩa trạng thái
+    localparam IDLE   = 2'b00;
+    localparam GREEN  = 2'b01;
+    localparam YELLOW = 2'b10;
+    localparam RED    = 2'b11;
+
+    reg [1:0] state, next_state;
+
+    // =========================
+    // 1. Thanh ghi trạng thái
+    // =========================
     always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
-            light_current_state <= IDLE;
-        end
-        else if (en) begin
-            light_current_state <= light_next_state;
-        end
-        else begin
-            light_current_state <= IDLE;
-        end
+        if (!rst_n)
+            state <= IDLE;
+        else if (en)
+            state <= next_state;
+        else
+            state <= IDLE;
     end
-    
-    
+
+    // =========================
+    // 2. Logic chuyển trạng thái & xuất tín hiệu
+    // =========================
     always @(*) begin
-        light_next_state = IDLE;
-        signal_light = 3'b000;
-        signal_light_cnt_init = 3'b000;
-        
-        case (light_current_state)
-            // Trạng thái IDLE: đèn tắt
+        // Mặc định
+        light          = 3'b000;
+        light_cnt_init = 3'b000;
+        next_state     = state;
+
+        case (state)
             IDLE: begin
-                if (en) begin
-                    light_next_state = GREEN;
-                    signal_light[pGREEN_IDX] = 1'b1;
-                end
-                else begin
-                    light_next_state = IDLE;
-                    signal_light = 3'b000;
-                    signal_light_cnt_init = 3'b000;
-                end
+                next_state = en ? GREEN : IDLE;
+                light      = en ? 3'b100 : 3'b000; // Green khi bắt đầu
             end
-            
+
             GREEN: begin
-                if (last_cnt) begin
-                    light_next_state = YELLOW;
-                    signal_light[pYELLOW_IDX] = 1'b1;
-                    signal_light_cnt_init[pYELLOW_IDX] = 1'b1;
-                end
-                else begin
-                    light_next_state = GREEN;
-                    signal_light[pGREEN_IDX] = 1'b1;
-                end
+                next_state     = last_cnt ? YELLOW : GREEN;
+                light          = last_cnt ? 3'b010 : 3'b100; // Yellow : Green
+                light_cnt_init = last_cnt ? 3'b010 : 3'b000;
             end
-            
+
             YELLOW: begin
-                if (last_cnt) begin
-                    light_next_state = RED;
-                    signal_light[pRED_IDX] = 1'b1;
-                    signal_light_cnt_init[pRED_IDX] = 1'b1;
-                end
-                else begin
-                    light_next_state = YELLOW;
-                    signal_light[pYELLOW_IDX] = 1'b1;
-                end
+                next_state     = last_cnt ? RED : YELLOW;
+                light          = last_cnt ? 3'b001 : 3'b010; // Red : Yellow
+                light_cnt_init = last_cnt ? 3'b001 : 3'b000;
             end
-            
+
             RED: begin
-                if (last_cnt) begin
-                    light_next_state = GREEN;
-                    signal_light[pGREEN_IDX] = 1'b1;
-                    signal_light_cnt_init[pGREEN_IDX] = 1'b1;
-                end
-                else begin
-                    light_next_state = RED;
-                    signal_light[pRED_IDX] = 1'b1;
-                end
+                next_state     = last_cnt ? GREEN : RED;
+                light          = last_cnt ? 3'b100 : 3'b001; // Green : Red
+                light_cnt_init = last_cnt ? 3'b100 : 3'b000;
             end
         endcase
     end
-    
-    // Output assignments
-    assign light = signal_light;
-    assign light_cnt_init = signal_light_cnt_init;
+
+endmodule
+
+module segment_display (
+    input  wire [4:0] count_value,
+    output wire [6:0] seg_a, // hàng chục
+    output wire [6:0] seg_b  // hàng đơn vị
+);
+
+    wire [3:0] digit_a = count_value / 10;
+    wire [3:0] digit_b = count_value % 10;
+
+    display dis_a (
+        .value(digit_a),
+        .seg(seg_a)
+    );
+
+    display dis_b (
+        .value(digit_b),
+        .seg(seg_b)
+    );
+
+endmodule
+
+
+module display (
+    input  [3:0] value,
+    output reg [6:0] seg
+);
+
+    always @(*) begin
+        case (value)
+            4'd0: seg = 7'b1111110;
+            4'd1: seg = 7'b0110000;
+            4'd2: seg = 7'b1101101;
+            4'd3: seg = 7'b1111001;
+            4'd4: seg = 7'b0110011;
+            4'd5: seg = 7'b1011011;
+            4'd6: seg = 7'b1011111;
+            4'd7: seg = 7'b1110000;
+            4'd8: seg = 7'b1111111;
+            4'd9: seg = 7'b1111011;
+            default: seg = 7'b0000000;
+        endcase
+    end
 
 endmodule
 
@@ -166,7 +175,9 @@ module traffic_light_top #(
     output wire              Red,
     output wire              Yellow, 
     output wire              Green,
-    output wire [WIDTH-1:0]  counter_display
+    output wire [WIDTH-1:0]  counter_display,
+    output wire [6:0]        seg_a, // hàng chục
+    output wire [6:0]        seg_b  // hàng đơn vị
 );
     // Internal signals
     wire last_cnt;
@@ -201,6 +212,13 @@ module traffic_light_top #(
         .count_out(counter_display)
     );
 
+    // Segment display instance
+    segment_display seg_display (
+        .count_value(counter_display),
+        .seg_a(seg_a), // hàng chục
+        .seg_b(seg_b)  // hàng đơn vị
+    );
+
     // Light decode - direct mapping from FSM light signal
     assign Green  = light[0];  // LSB = GREEN
     assign Yellow = light[1];  // Middle bit = YELLOW
@@ -219,6 +237,8 @@ module traffic_light_top_tb();
     reg en;
     wire Red, Yellow, Green;
     wire [WIDTH-1:0] counter_display;
+    wire [6:0] seg_a; // hàng chục
+    wire [6:0] seg_b; // hàng đơn vị
 
     // DUT instance
     traffic_light_top #(
@@ -231,7 +251,9 @@ module traffic_light_top_tb();
         .Red(Red),
         .Yellow(Yellow),
         .Green(Green),
-        .counter_display(counter_display)
+        .counter_display(counter_display),
+        .seg_a(seg_a),
+        .seg_b(seg_b)
     );
 
     // Clock generation (50% duty)

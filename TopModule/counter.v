@@ -1,48 +1,53 @@
-module counter_logic #(
-    parameter WIDTH = 4
+module counter #(
+    parameter pGREEN_INIT_VAL = 14,
+    parameter pYELLOW_INIT_VAL = 2,
+    parameter pRED_INIT_VAL = 17,
+    parameter pCNT_WIDTH = 5,
+    parameter pINIT_WIDTH = 3
 )(
-    input                  clk,
-    input                  rst_n,
-    input                  en,
-    input  [WIDTH-1:0]     time_light,
-    output reg [WIDTH-1:0] counter_out,
-    output reg             pre_last
+    input wire clk,
+    input wire rst_n,
+    input wire en,
+    input wire [pINIT_WIDTH-1:0] init,
+    output wire last,
+    output wire [pCNT_WIDTH-1:0] count_out
 );
 
-    reg [WIDTH-1:0] counter;
+    localparam pGREEN_IDX = 0;
+    localparam pYELLOW_IDX = 1;
+    localparam pRED_IDX = 2;
 
-    // Combination logic to check conditions
-    wire eq_zero = (counter == {WIDTH{1'b0}});               // counter == 0
-    wire eq_one  = (counter == {{(WIDTH-1){1'b0}}, 1'b0});   // counter == 1
-    wire [WIDTH-1:0] counter_dec = counter - 1'b1;
+    reg [pCNT_WIDTH-1:0] count;
+    wire [pCNT_WIDTH-1:0] next_count;
+    wire [pCNT_WIDTH-1:0] dec_value;
+
+    // Check if count is zero
+    wire count_is_zero = (count == {pCNT_WIDTH{1'b0}});
+
+    // Decrement only if count is not zero
+    assign dec_value = count_is_zero ? count : count + 5'b11111;
+
+    // Next count logic
+    assign next_count = !rst_n              ? pGREEN_INIT_VAL :
+                       init[pGREEN_IDX]     ? pGREEN_INIT_VAL :
+                       init[pYELLOW_IDX]    ? pYELLOW_INIT_VAL :
+                       init[pRED_IDX]       ? pRED_INIT_VAL : 
+                       en                   ? dec_value : count;
 
     // Counter register
     always @(posedge clk or negedge rst_n) begin
-        if (!rst_n)
-            counter <= time_light;
-        else if (en) begin
-            if (eq_zero)
-                counter <= time_light;  // load new value
-            else
-                counter <= counter_dec; // decrement
+        if(!rst_n) begin
+            count <= pGREEN_INIT_VAL;  // Reset to GREEN value
+        end else if (en) begin 
+            count <= next_count;
+        end else begin
+            count <= count;  // Hold value when not enabled
         end
     end
 
-    // Output counter_out register
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n)
-            counter_out <= time_light;
-        else if (en)
-            counter_out <= counter;
-    end
-
-    // Output pre_last register
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n)
-            pre_last <= 1'b0;
-        else if (en)
-            pre_last <= eq_one;
-    end
+    // Output logic
+    assign last = count_is_zero;
+    assign count_out = count;
 
 endmodule
 

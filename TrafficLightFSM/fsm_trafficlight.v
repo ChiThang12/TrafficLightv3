@@ -1,72 +1,70 @@
-module fsm_trafficlight #(
-    parameter WIDTH = 5
+module traffic_fsm #(
+    parameter LIGHT_STATE_WIDTH = 3
 )(
-    input wire clk,
-    input wire rst_n,
-    input wire en,
-    input wire last_light,
-    output reg [1:0] state,
-    output reg [WIDTH-1:0] time_light
+    input  wire clk,
+    input  wire en,
+    input  wire rst_n,
+    input  wire last_cnt,
+    output reg  [LIGHT_STATE_WIDTH-1:0] light,
+    output reg  [LIGHT_STATE_WIDTH-1:0] light_cnt_init
 );
 
-    // State encoding
+    // Định nghĩa trạng thái
     localparam IDLE   = 2'b00;
-    localparam RED    = 2'b01;
-    localparam GREEN  = 2'b10;
-    localparam YELLOW = 2'b11;
+    localparam GREEN  = 2'b01;
+    localparam YELLOW = 2'b10;
+    localparam RED    = 2'b11;
 
-    // Time settings for each state
-    localparam TIME_RED    = 5'd18;
-    localparam TIME_GREEN  = 5'd15;
-    localparam TIME_YELLOW = 5'd3;
+    reg [1:0] state, next_state;
 
-    // Next state and output logic
-    reg [1:0] next_state;
-    reg [WIDTH-1:0] next_time;
-
-    // Combinational logic for next state
-    always @(*) begin
-        // Giá trị mặc định - giữ trạng thái hiện tại
-        next_state = state;
-        next_time = time_light;
-
-        if (en && last_light) begin
-            case (state)
-                IDLE: begin
-                    next_state = RED;
-                    next_time = TIME_RED;
-                end
-                RED: begin
-                    next_state = GREEN;
-                    next_time = TIME_GREEN;
-                end
-                GREEN: begin
-                    next_state = YELLOW;
-                    next_time = TIME_YELLOW;
-                end
-                YELLOW: begin
-                    next_state = RED;
-                    next_time = TIME_RED;
-                end
-            endcase
-        end
+    // =========================
+    // 1. Thanh ghi trạng thái
+    // =========================
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            state <= IDLE;
+        else if (en)
+            state <= next_state;
+        else
+            state <= IDLE;
     end
 
-    // Sequential logic for state update
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
-            state <= IDLE;
-            time_light <= TIME_RED;
-        end 
-        else begin
-            state <= next_state;
-            time_light <= next_time;
-        end
+    // =========================
+    // 2. Logic chuyển trạng thái & xuất tín hiệu
+    // =========================
+    always @(*) begin
+        // Mặc định
+        light          = 3'b000;
+        light_cnt_init = 3'b000;
+        next_state     = state;
+
+        case (state)
+            IDLE: begin
+                next_state = en ? GREEN : IDLE;
+                light      = en ? 3'b100 : 3'b000; // Green khi bắt đầu
+            end
+
+            GREEN: begin
+                next_state     = last_cnt ? YELLOW : GREEN;
+                light          = last_cnt ? 3'b010 : 3'b100; // Yellow : Green
+                light_cnt_init = last_cnt ? 3'b010 : 3'b000;
+            end
+
+            YELLOW: begin
+                next_state     = last_cnt ? RED : YELLOW;
+                light          = last_cnt ? 3'b001 : 3'b010; // Red : Yellow
+                light_cnt_init = last_cnt ? 3'b001 : 3'b000;
+            end
+
+            RED: begin
+                next_state     = last_cnt ? GREEN : RED;
+                light          = last_cnt ? 3'b100 : 3'b001; // Green : Red
+                light_cnt_init = last_cnt ? 3'b100 : 3'b000;
+            end
+        endcase
     end
 
 endmodule
-
-
 `timescale 1ns/1ps
 
 module fsm_trafficlight_tb();
